@@ -28,5 +28,5 @@ class ConnectorShell:
 
     def respond(self, message):
         """ Respond with a message """
-        logging.debug("Responding with: " + message)
-        print(message)
+        logging.debug("Responding with: " + message.message)
+        print(message.message)
