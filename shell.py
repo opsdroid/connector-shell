@@ -6,13 +6,10 @@ from opsdroid.message import Message
 
 class ConnectorShell:
 
-    def __init__(self):
-        """ Init function """
-        self.name = "shell"
-
-    def setup(self, opsdroid):
+    def __init__(self, config):
         """ Setup the connector """
         logging.debug("Loaded shell connector")
+        self.name = "shell"
 
     def connect(self, opsdroid):
         """ Connect to the chat service """
