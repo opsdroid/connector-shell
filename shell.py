@@ -10,6 +10,7 @@ class ConnectorShell:
         """ Setup the connector """
         logging.debug("Loaded shell connector")
         self.name = "shell"
+        self.bot-name = config["bot-name"]
 
     def connect(self, opsdroid):
         """ Connect to the chat service """
@@ -18,7 +19,7 @@ class ConnectorShell:
         message = ""
         try:
             while message != "exit":
-                print('shell> ', end="")
+                print(self.bot-name + '> ', end="")
                 user_input = input()
                 message = Message(user_input, user, None, self)
                 opsdroid.parse(message)
