@@ -2,14 +2,16 @@ import logging
 import os
 import pwd
 import datetime
+from opsdroid.connector import Connector
 from opsdroid.message import Message
 
-class ConnectorShell:
+class ConnectorShell(Connector):
 
     def __init__(self, config):
         """ Setup the connector """
         logging.debug("Loaded shell connector")
         self.name = "shell"
+        self.config = config
         self.bot_name = config["bot-name"]
 
     def connect(self, opsdroid):
