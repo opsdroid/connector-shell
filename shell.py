@@ -52,7 +52,7 @@ class ConnectorShell(Connector):
         """ Connect to the chat service """
         logging.debug("Connecting to shell")
         user = pwd.getpwuid(os.getuid())[0]
-        message = {"text": None}
+        message = Message("", "", None, self)
         try:
             while message.text != "exit":
                 user_input = await async_input(self.bot_name + '> ', opsdroid.eventloop)
