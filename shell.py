@@ -48,7 +48,7 @@ class ConnectorShell(Connector):
         self.config = config
         self.bot_name = config["bot-name"]
 
-    async def connect(self, opsdroid):
+    def connect(self, opsdroid):
         """ Connect to the chat service """
         logging.debug("Connecting to shell")
         user = pwd.getpwuid(os.getuid())[0]
@@ -62,7 +62,7 @@ class ConnectorShell(Connector):
             print('') # Prints a character return to prepare for return to shell
             logging.info("Keyboard interrupt, exiting shell connector")
 
-    async def respond(self, message):
+    def respond(self, message):
         """ Respond with a message """
         logging.debug("Responding with: " + message.text)
         print(message.text)
