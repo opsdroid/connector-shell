@@ -52,12 +52,12 @@ class ConnectorShell(Connector):
         """ Connect to the chat service """
         logging.debug("Connecting to shell")
         user = pwd.getpwuid(os.getuid())[0]
-        message = ""
+        message = {"text": None}
         try:
-            while message != "exit":
+            while message.text != "exit":
                 user_input = await async_input(self.bot_name + '> ', opsdroid.eventloop)
                 message = Message(user_input, user, None, self)
-                return message
+                await opsdroid.parse(message)
         except (KeyboardInterrupt, EOFError):
             print('') # Prints a character return to prepare for return to shell
             logging.info("Keyboard interrupt, exiting shell connector")
