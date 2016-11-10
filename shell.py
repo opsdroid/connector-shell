@@ -11,29 +11,27 @@ from opsdroid.message import Message
 
 reader, writer = None, None
 
-@asyncio.coroutine
-def stdio(loop=None):
+async def stdio(loop=None):
     if loop is None:
         loop = asyncio.get_event_loop()
 
     reader = asyncio.StreamReader()
     reader_protocol = asyncio.StreamReaderProtocol(reader)
 
-    writer_transport, writer_protocol = yield from loop.connect_write_pipe(FlowControlMixin, os.fdopen(0, 'wb'))
+    writer_transport, writer_protocol = await loop.connect_write_pipe(FlowControlMixin, os.fdopen(0, 'wb'))
     writer = StreamWriter(writer_transport, writer_protocol, None, loop)
 
     yield from loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
 
     return reader, writer
 
-@asyncio.coroutine
-def async_input(message, loop=None):
+async def async_input(message, loop=None):
     if isinstance(message, str):
         message = message.encode('utf8')
 
     global reader, writer
     if (reader, writer) == (None, None):
-        reader, writer = yield from stdio(loop)
+        reader, writer = await stdio(loop)
 
     writer.write(message)
     yield from writer.drain()
@@ -50,15 +48,14 @@ class ConnectorShell(Connector):
         self.config = config
         self.bot_name = config["bot-name"]
 
-    @asyncio.coroutine
-    def connect(self, opsdroid):
+    async def connect(self, opsdroid):
         """ Connect to the chat service """
         logging.debug("Connecting to shell")
         user = pwd.getpwuid(os.getuid())[0]
         message = ""
         try:
             while message != "exit":
-                user_input = yield from async_input(self.bot_name + '> ', opsdroid.eventloop)
+                user_input = await async_input(self.bot_name + '> ', opsdroid.eventloop)
                 print(user_input)
                 message = Message(user_input, user, None, self)
                 yield message
