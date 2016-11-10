@@ -11,7 +11,8 @@ from opsdroid.message import Message
 
 reader, writer = None, None
 
-async def stdio(loop=None):
+@asyncio.coroutine
+def stdio(loop=None):
     if loop is None:
         loop = asyncio.get_event_loop()
 
@@ -25,7 +26,8 @@ async def stdio(loop=None):
 
     return reader, writer
 
-async def async_input(message, loop=None):
+@asyncio.coroutine
+def async_input(message, loop=None):
     if isinstance(message, str):
         message = message.encode('utf8')
 
