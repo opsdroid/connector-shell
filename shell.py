@@ -50,6 +50,7 @@ class ConnectorShell(Connector):
         self.config = config
         self.bot_name = config["bot-name"]
 
+    @asyncio.coroutine
     def connect(self, opsdroid):
         """ Connect to the chat service """
         logging.debug("Connecting to shell")
@@ -58,6 +59,7 @@ class ConnectorShell(Connector):
         try:
             while message != "exit":
                 user_input = yield from async_input(self.bot_name + '> ', opsdroid.eventloop)
+                print(user_input)
                 message = Message(user_input, user, None, self)
                 yield message
         except (KeyboardInterrupt, EOFError):
