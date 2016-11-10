@@ -58,7 +58,7 @@ class ConnectorShell(Connector):
             message = Message(user_input, user, None, self)
             await opsdroid.parse(message)
 
-    def respond(self, message):
+    async def respond(self, message):
         """ Respond with a message """
         logging.debug("Responding with: " + message.text)
         print(message.text)
