@@ -53,14 +53,10 @@ class ConnectorShell(Connector):
         logging.debug("Connecting to shell")
         user = pwd.getpwuid(os.getuid())[0]
         message = Message("", "", None, self)
-        try:
-            while message.text != "exit":
-                user_input = await async_input(self.bot_name + '> ', opsdroid.eventloop)
-                message = Message(user_input, user, None, self)
-                await opsdroid.parse(message)
-        except (KeyboardInterrupt, EOFError):
-            print('') # Prints a character return to prepare for return to shell
-            logging.info("Keyboard interrupt, exiting shell connector")
+        while message.text != "exit":
+            user_input = await async_input(self.bot_name + '> ', opsdroid.eventloop)
+            message = Message(user_input, user, None, self)
+            await opsdroid.parse(message)
 
     def respond(self, message):
         """ Respond with a message """
