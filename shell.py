@@ -21,7 +21,7 @@ async def stdio(loop=None):
     writer_transport, writer_protocol = await loop.connect_write_pipe(FlowControlMixin, os.fdopen(0, 'wb'))
     writer = StreamWriter(writer_transport, writer_protocol, None, loop)
 
-    yield from loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
+    await loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
 
     return reader, writer
 
@@ -34,7 +34,7 @@ async def async_input(message, loop=None):
         reader, writer = await stdio(loop)
 
     writer.write(message)
-    yield from writer.drain()
+    await writer.drain()
 
     line = await reader.readline()
     return line.decode('utf8').replace('\r', '').replace('\n', '')
