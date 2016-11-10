@@ -36,7 +36,7 @@ async def async_input(message, loop=None):
     writer.write(message)
     yield from writer.drain()
 
-    line = yield from reader.readline()
+    line = await reader.readline()
     return line.decode('utf8').replace('\r', '').replace('\n', '')
 
 class ConnectorShell(Connector):
