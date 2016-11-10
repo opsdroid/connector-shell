@@ -58,7 +58,7 @@ class ConnectorShell(Connector):
                 user_input = await async_input(self.bot_name + '> ', opsdroid.eventloop)
                 print(user_input)
                 message = Message(user_input, user, None, self)
-                yield message
+                return message
         except (KeyboardInterrupt, EOFError):
             print('') # Prints a character return to prepare for return to shell
             logging.info("Keyboard interrupt, exiting shell connector")
