@@ -2,9 +2,9 @@ import logging
 import os
 import pwd
 import datetime
+import sys
 import asyncio
 from asyncio.streams import StreamWriter, FlowControlMixin
-import sys
 
 from opsdroid.connector import Connector
 from opsdroid.message import Message
@@ -42,23 +42,27 @@ async def async_input(message, loop=None):
 class ConnectorShell(Connector):
 
     def __init__(self, config):
-        """ Setup the connector """
+        """Setup the connector."""
         logging.debug("Loaded shell connector")
         self.name = "shell"
         self.config = config
         self.bot_name = config["bot-name"]
 
     async def connect(self, opsdroid):
-        """ Connect to the chat service """
+        """Connect to the shell."""
+        pass # Nothing to do here as stdin is already available
+
+    async def listen(self, opsdroid):
+        """Listen for new user input."""
         logging.debug("Connecting to shell")
-        user = pwd.getpwuid(os.getuid())[0]
-        message = Message("", "", None, self)
-        while message.text != "exit":
-            user_input = await async_input(self.bot_name + '> ', opsdroid.eventloop)
+        while True:
+            user = pwd.getpwuid(os.getuid())[0]
+            user_input = await async_input(self.bot_name + '> ',
+                                           opsdroid.eventloop)
             message = Message(user_input, user, None, self)
             await opsdroid.parse(message)
 
     async def respond(self, message):
-        """ Respond with a message """
+        """Respond with a message."""
         logging.debug("Responding with: " + message.text)
         print(message.text)
