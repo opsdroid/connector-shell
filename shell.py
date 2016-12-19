@@ -44,7 +44,7 @@ class ConnectorShell(Connector):
     def __init__(self, config):
         """Setup the connector."""
         logging.debug("Loaded shell connector")
-        super(__init__(self, config))
+        super().__init__(self, config)
         self.name = "shell"
         self.config = config
         self.bot_name = config["bot-name"]
