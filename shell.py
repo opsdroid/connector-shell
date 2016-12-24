@@ -58,12 +58,17 @@ class ConnectorShell(Connector):
         logging.debug("Connecting to shell")
         while True:
             user = pwd.getpwuid(os.getuid())[0]
-            user_input = await async_input(self.bot_name + '> ',
-                                           opsdroid.eventloop)
+            self.draw_prompt()
+            user_input = await async_input('', opsdroid.eventloop)
             message = Message(user_input, user, None, self)
             await opsdroid.parse(message)
 
     async def respond(self, message):
         """Respond with a message."""
         logging.debug("Responding with: " + message.text)
-        print(message.text)
+        print("\r" + message.text)
+        self.draw_prompt()
+
+    def draw_prompt(self):
+        """Draw the user input prompt."""
+        print(self.bot_name + '> ', end="")
