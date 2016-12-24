@@ -71,4 +71,4 @@ class ConnectorShell(Connector):
 
     def draw_prompt(self):
         """Draw the user input prompt."""
-        print(self.bot_name + '> ', end="")
+        print(self.bot_name + '> ', end="", flush=True)
