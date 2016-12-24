@@ -48,6 +48,7 @@ class ConnectorShell(Connector):
         self.name = "shell"
         self.config = config
         self.bot_name = config["bot-name"]
+        self.prompt_length = None
 
     async def connect(self, opsdroid):
         """Connect to the shell."""
@@ -66,9 +67,16 @@ class ConnectorShell(Connector):
     async def respond(self, message):
         """Respond with a message."""
         logging.debug("Responding with: " + message.text)
-        print("\r" + message.text)
+        self.clear_prompt()
+        print(message.text)
         self.draw_prompt()
 
     def draw_prompt(self):
         """Draw the user input prompt."""
-        print(self.bot_name + '> ', end="", flush=True)
+        prompt = self.bot_name + '> '
+        self.prompt_length = len(prompt)
+        print(prompt, end="", flush=True)
+
+    def clear_prompt(self):
+        """Clear the prompt."""
+        print("\r" + (" " * self.prompt_length) + "\r", end="", flush=True)
