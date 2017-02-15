@@ -4,11 +4,15 @@ A connector for [opsdroid](https://github.com/opsdroid/opsdroid) to send message
 
 ## Requirements
 
-The shell connector requires access to user input, this cannot be done in multiprocessing mode. Therefore it must be the only connector in the configuration.
+The shell connector requires access to user input, this means you should probably set the logging not to go to the console. 
 
 ## Configuration
 
-None.
+```yaml
+# Optional
+logging:
+  console: false
+```
 
 ## License
 
