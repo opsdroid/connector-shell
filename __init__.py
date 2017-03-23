@@ -47,7 +47,7 @@ class ConnectorShell(Connector):
         super().__init__(config)
         self.name = "shell"
         self.config = config
-        self.bot_name = config["bot-name"]
+        self.bot_name = config.get("bot-name", "opsdroid")
         self.prompt_length = None
 
     async def connect(self, opsdroid):
