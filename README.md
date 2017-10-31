@@ -13,7 +13,3 @@ The shell connector requires access to user input, this means you should probabl
 logging:
   console: false
 ```
-
-## License
-
-GNU General Public License Version 3 (GPLv3)
