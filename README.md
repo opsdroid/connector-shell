@@ -9,7 +9,19 @@ The shell connector requires access to user input, this means you should probabl
 ## Configuration
 
 ```yaml
-# Optional
+connectors:
+  - name: shell
+    # optional
+    bot-name: "mybot" # default "opsdroid"
+```
+
+## Disable Logging
+It's recommended to deactivate console logging in your `configuration.yaml` file if you intend to use this connector.
+
+Just add the following in your configuration file:
+
+```yaml
 logging:
   console: false
 ```
+
