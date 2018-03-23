@@ -14,3 +14,12 @@ connectors:
     # optional
     bot-name: "mybot" # default "opsdroid"
 ```
+
+## Disable Logging
+It's recommended to deactivate logging in your `configuration.yaml` file if you intend to use this connectori, just add the following in your configuration file:
+
+```yaml
+logging:
+  console: false
+```
+
