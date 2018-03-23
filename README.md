@@ -9,7 +9,8 @@ The shell connector requires access to user input, this means you should probabl
 ## Configuration
 
 ```yaml
-# Optional
-logging:
-  console: false
+connectors:
+  - name: shell
+    # optional
+    bot-name: "mybot" # default "opsdroid"
 ```
