@@ -16,7 +16,9 @@ connectors:
 ```
 
 ## Disable Logging
-It's recommended to deactivate logging in your `configuration.yaml` file if you intend to use this connectori, just add the following in your configuration file:
+It's recommended to deactivate console logging in your `configuration.yaml` file if you intend to use this connector.
+
+Just add the following in your configuration file:
 
 ```yaml
 logging:
