@@ -1,6 +1,5 @@
 import logging
 import os
-import pwd
 import datetime
 import sys
 import asyncio
@@ -10,6 +9,14 @@ from opsdroid.connector import Connector
 from opsdroid.message import Message
 
 reader, writer = None, None
+
+
+def get_username():
+    for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
+        user = os.environ.get(name)
+        if user != 'None':
+            return user
+
 
 async def stdio(loop=None):
     if loop is None:
@@ -58,7 +65,7 @@ class ConnectorShell(Connector):
         """Listen for new user input."""
         logging.debug("Connecting to shell")
         while True:
-            user = pwd.getpwuid(os.getuid())[0]
+            user = get_username()
             self.draw_prompt()
             user_input = await async_input('', opsdroid.eventloop)
             message = Message(user_input, user, None, self)
