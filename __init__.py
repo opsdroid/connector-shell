@@ -1,82 +1,64 @@
+"""A connector to send messages using the command line."""
 import logging
 import os
-import datetime
 import sys
+import platform
 import asyncio
-from asyncio.streams import StreamWriter, FlowControlMixin
 
 from opsdroid.connector import Connector
 from opsdroid.message import Message
 
-reader, writer = None, None
+_LOGGER = logging.getLogger(__name__)
 
-
-def get_username():
-    for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
-        user = os.environ.get(name)
-        if user != 'None':
-            return user
-
-
-async def stdio(loop=None):
-    if loop is None:
-        loop = asyncio.get_event_loop()
-
-    reader = asyncio.StreamReader()
-    reader_protocol = asyncio.StreamReaderProtocol(reader)
-
-    writer_transport, writer_protocol = await loop.connect_write_pipe(FlowControlMixin, os.fdopen(0, 'wb'))
-    writer = StreamWriter(writer_transport, writer_protocol, None, loop)
-
-    await loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
-
-    return reader, writer
-
-async def async_input(message, loop=None):
-    if isinstance(message, str):
-        message = message.encode('utf8')
-
-    global reader, writer
-    if (reader, writer) == (None, None):
-        reader, writer = await stdio(loop)
-
-    writer.write(message)
-    await writer.drain()
-
-    line = await reader.readline()
-    return line.decode('utf8').replace('\r', '').replace('\n', '')
 
 class ConnectorShell(Connector):
+    """A connector to send messages using the command line."""
 
     def __init__(self, config):
-        """Setup the connector."""
-        logging.debug("Loaded shell connector")
+        """Create the connector."""
+        _LOGGER.debug(_("Loaded shell connector"))
         super().__init__(config)
         self.name = "shell"
         self.config = config
         self.bot_name = config.get("bot-name", "opsdroid")
         self.prompt_length = None
+        self.listening = True
+        self.reader = None
+        self.loop = asyncio.get_event_loop()
 
-    async def connect(self, opsdroid):
-        """Connect to the shell."""
-        pass # Nothing to do here as stdin is already available
+        for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
+            user = os.environ.get(name)
+            if user:
+                self.user = user
 
-    async def listen(self, opsdroid):
-        """Listen for new user input."""
-        logging.debug("Connecting to shell")
-        while True:
-            user = get_username()
-            self.draw_prompt()
-            user_input = await async_input('', opsdroid.eventloop)
-            message = Message(user_input, user, None, self)
-            await opsdroid.parse(message)
+    async def read_stdin(self):
+        """Create a stream reader to read stdin asynchronously.
 
-    async def respond(self, message, room=None):
-        """Respond with a message."""
-        logging.debug("Responding with: " + message.text)
-        self.clear_prompt()
-        print(message.text)
-        self.draw_prompt()
+        Returns:
+            class: asyncio.streams.StreamReader
+
+        """
+        self.reader = asyncio.StreamReader(loop=self.loop)
+        reader_protocol = asyncio.StreamReaderProtocol(self.reader)
+
+        await self.loop.connect_read_pipe(
+            lambda: reader_protocol,
+            sys.stdin)
+
+        return self.reader
+
+    async def async_input(self):
+        """Read user input asynchronously from stdin.
+
+        Returns:
+            string: A decoded string from user input.
+
+        """
+        if not self.reader:
+            self.reader = await self.read_stdin()
+        line = await self.reader.readline()
+
+        return line.decode('utf8').replace('\r', '').replace('\n', '')
 
     def draw_prompt(self):
         """Draw the user input prompt."""
@@ -87,3 +69,48 @@ class ConnectorShell(Connector):
     def clear_prompt(self):
         """Clear the prompt."""
         print("\r" + (" " * self.prompt_length) + "\r", end="", flush=True)
+
+    async def _parse_message(self, opsdroid):
+        """Parse user input."""
+        self.draw_prompt()
+        user_input = await self.async_input()
+        message = Message(user_input, self.user, None, self)
+        await opsdroid.parse(message)
+
+    async def connect(self, opsdroid):
+        """Connect to the shell.
+
+        There is nothing to do here since stdin is already available.
+
+        Since this is the first method called when opsdroid starts, a logging
+        message is shown if the user is using windows.
+
+        """
+        if platform.system() == "Windows":
+            _LOGGER.warning("The shell connector does not work on windows."
+                            " Please install the Opsdroid Desktop App.")
+        pass
+
+    async def listen(self, opsdroid):
+        """Listen for and parse new user input.
+
+        Args:
+            opsdroid (Opsdroid): An instance of opsdroid core.
+
+        """
+        _LOGGER.debug(_("Connecting to shell"))
+        while self.listening:
+            await self._parse_message(opsdroid)
+
+    async def respond(self, message, room=None):
+        """Respond with a message.
+
+        Args:
+            message (object): An instance of Message
+            room (string, optional): Name of the room to respond to.
+
+        """
+        _LOGGER.debug(_("Responding with: %s"), message.text)
+        self.clear_prompt()
+        print(message.text)
+        self.draw_prompt()
