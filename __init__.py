@@ -14,12 +14,13 @@ _LOGGER = logging.getLogger(__name__)
 class ConnectorShell(Connector):
     """A connector to send messages using the command line."""
 
-    def __init__(self, config):
+    def __init__(self, config, opsdroid=None):
         """Create the connector."""
         _LOGGER.debug(_("Loaded shell connector"))
-        super().__init__(config)
+        super().__init__(config, opsdroid=opsdroid)
         self.name = "shell"
         self.config = config
+        self.opsdroid = opsdroid
         self.bot_name = config.get("bot-name", "opsdroid")
         self.prompt_length = None
         self.listening = True
@@ -70,14 +71,14 @@ class ConnectorShell(Connector):
         """Clear the prompt."""
         print("\r" + (" " * self.prompt_length) + "\r", end="", flush=True)
 
-    async def _parse_message(self, opsdroid):
+    async def _parse_message(self):
         """Parse user input."""
         self.draw_prompt()
         user_input = await self.async_input()
         message = Message(user_input, self.user, None, self)
-        await opsdroid.parse(message)
+        await self.opsdroid.parse(message)
 
-    async def connect(self, opsdroid):
+    async def connect(self):
         """Connect to the shell.
 
         There is nothing to do here since stdin is already available.
@@ -91,7 +92,7 @@ class ConnectorShell(Connector):
                             " Please install the Opsdroid Desktop App.")
         pass
 
-    async def listen(self, opsdroid):
+    async def listen(self):
         """Listen for and parse new user input.
 
         Args:
@@ -100,7 +101,7 @@ class ConnectorShell(Connector):
         """
         _LOGGER.debug(_("Connecting to shell"))
         while self.listening:
-            await self._parse_message(opsdroid)
+            await self._parse_message(self.opsdroid)
 
     async def respond(self, message, room=None):
         """Respond with a message.
