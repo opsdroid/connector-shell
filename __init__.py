@@ -14,13 +14,12 @@ _LOGGER = logging.getLogger(__name__)
 class ConnectorShell(Connector):
     """A connector to send messages using the command line."""
 
-    def __init__(self, config, opsdroid=None):
+    def __init__(self, config):
         """Create the connector."""
         _LOGGER.debug(_("Loaded shell connector"))
-        super().__init__(config, opsdroid=opsdroid)
+        super().__init__(config)
         self.name = "shell"
         self.config = config
-        self.opsdroid = opsdroid
         self.bot_name = config.get("bot-name", "opsdroid")
         self.prompt_length = None
         self.listening = True
@@ -71,14 +70,14 @@ class ConnectorShell(Connector):
         """Clear the prompt."""
         print("\r" + (" " * self.prompt_length) + "\r", end="", flush=True)
 
-    async def _parse_message(self):
+    async def _parse_message(self, opsdroid):
         """Parse user input."""
         self.draw_prompt()
         user_input = await self.async_input()
         message = Message(user_input, self.user, None, self)
-        await self.opsdroid.parse(message)
+        await opsdroid.parse(message)
 
-    async def connect(self):
+    async def connect(self, opsdroid):
         """Connect to the shell.
 
         There is nothing to do here since stdin is already available.
@@ -86,13 +85,16 @@ class ConnectorShell(Connector):
         Since this is the first method called when opsdroid starts, a logging
         message is shown if the user is using windows.
 
+        Args:
+            opsdroid (Opsdroid): An instance of opsdroid core.
+
         """
         if platform.system() == "Windows":
             _LOGGER.warning("The shell connector does not work on windows."
                             " Please install the Opsdroid Desktop App.")
         pass
 
-    async def listen(self):
+    async def listen(self, opsdroid):
         """Listen for and parse new user input.
 
         Args:
@@ -101,7 +103,7 @@ class ConnectorShell(Connector):
         """
         _LOGGER.debug(_("Connecting to shell"))
         while self.listening:
-            await self._parse_message(self.opsdroid)
+            await self._parse_message(opsdroid)
 
     async def respond(self, message, room=None):
         """Respond with a message.
