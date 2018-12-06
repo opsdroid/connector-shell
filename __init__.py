@@ -24,6 +24,7 @@ class ConnectorShell(Connector):
         self.prompt_length = None
         self.listening = True
         self.reader = None
+        self._closing = asyncio.Event()
         self.loop = asyncio.get_event_loop()
 
         for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
@@ -72,10 +73,11 @@ class ConnectorShell(Connector):
 
     async def _parse_message(self):
         """Parse user input."""
-        self.draw_prompt()
-        user_input = await self.async_input()
-        message = Message(user_input, self.user, None, self)
-        await self.opsdroid.parse(message)
+        while self.listening:
+            self.draw_prompt()
+            user_input = await self.async_input()
+            message = Message(user_input, self.user, None, self)
+            await self.opsdroid.parse(message)
 
     async def connect(self):
         """Connect to the shell.
@@ -94,8 +96,9 @@ class ConnectorShell(Connector):
     async def listen(self):
         """Listen for and parse new user input."""
         _LOGGER.debug(_("Connecting to shell"))
-        while self.listening:
-            await self._parse_message()
+        message_processor = self.loop.create_task(self._parse_message())
+        await self._closing.wait()
+        message_processor.cancel()
 
     async def respond(self, message, room=None):
         """Respond with a message.
@@ -109,3 +112,7 @@ class ConnectorShell(Connector):
         self.clear_prompt()
         print(message.text)
         self.draw_prompt()
+
+    async def disconnect(self):
+        """Disconnects the connector."""
+        self._closing.set()
