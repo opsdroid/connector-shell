@@ -5,8 +5,8 @@ import sys
 import platform
 import asyncio
 
-from opsdroid.connector import Connector
-from opsdroid.message import Message
+from opsdroid.connector import Connector, register_event
+from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -100,13 +100,12 @@ class ConnectorShell(Connector):
         await self._closing.wait()
         message_processor.cancel()
 
-    async def respond(self, message, room=None):
+    @register_event(Message)
+    async def respond(self, message):
         """Respond with a message.
 
         Args:
             message (object): An instance of Message
-            room (string, optional): Name of the room to respond to.
-
         """
         _LOGGER.debug(_("Responding with: %s"), message.text)
         self.clear_prompt()
