@@ -1,4 +1,4 @@
-⚠️ *DEPRECATED* ⚠️ This connector is now built in to [opsdroid core](https://opsdroid.readthedocs.io/en/stable/connectors/shell/). This repository only exists for backward compatibility and will be removed.
+⚠️ *DEPRECATED* ⚠️ This connector is now built into [opsdroid core](https://docs.opsdroid.dev/en/stable/connectors/shell/). This repository only exists for backward compatibility and will be removed.
 
 # opsdroid connector shell
 
