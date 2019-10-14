@@ -1,3 +1,5 @@
+⚠️ *DEPRECATED* ⚠️ This connector is now built into [opsdroid core](https://docs.opsdroid.dev/en/stable/connectors/shell/). This repository only exists for backward compatibility and will be removed.
+
 # opsdroid connector shell
 
 A connector for [opsdroid](https://github.com/opsdroid/opsdroid) to send messages using the command line.
